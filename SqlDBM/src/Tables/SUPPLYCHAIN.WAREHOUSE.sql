@@ -1,0 +1,13 @@
+-- ************************************** SUPPLYCHAIN.WAREHOUSE
+CREATE TABLE SUPPLYCHAIN.WAREHOUSE (
+  WAREHOUSEID decimal(10,0) NOT NULL CONSTRAINT PK_1 PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) COMMENT 'The ''WarehouseID'' column contains data related to ''warehouseid''. This column likely represents an identifier.',
+  WAREHOUSENAME string(255) NOT NULL COMMENT 'The ''WarehouseName'' column contains data related to ''warehousename''. This column holds name-related data.',
+  ADDRESS string(255) COMMENT 'The ''Address'' column contains data related to ''address''.',
+  CITY string(100) COMMENT 'The ''City'' column contains data related to ''city''.',
+  STATE string(100) COMMENT 'The ''State'' column contains data related to ''state''.',
+  ZIPCODE string(20) COMMENT 'The ''ZipCode'' column contains data related to ''zipcode''.',
+  COUNTRY string(100) COMMENT 'The ''Country'' column contains data related to ''country''.',
+  MANAGERNAME string(255) COMMENT 'The ''ManagerName'' column contains data related to ''managername''. This column holds name-related data.',
+  CAPACITY decimal(10,0) COMMENT 'The ''Capacity'' column contains data related to ''capacity''.'
+)
+COMMENT 'Master table containing warehouse facility information including location details, manager information, and storage capacity.';
