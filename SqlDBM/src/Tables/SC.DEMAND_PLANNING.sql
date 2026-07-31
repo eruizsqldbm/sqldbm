@@ -1,0 +1,10 @@
+-- ************************************** SC.DEMAND_PLANNING
+CREATE TABLE SC.DEMAND_PLANNING (
+  PLANNING_ID decimal(10,0) NOT NULL CONSTRAINT PK_DEMAND_PLANNING PRIMARY KEY COMMENT 'Unique identifier for each demand planning record.',
+  MATERIAL_ID string COMMENT 'References the material for which demand is planned.',
+  PLANNING_DATE date COMMENT 'The date associated with the demand planning.',
+  PLANNED_QUANTITY decimal(10,0) COMMENT 'The planned quantity of the material for the specified date.',
+  CONSTRAINT FK_116 FOREIGN KEY (MATERIAL_ID) REFERENCES SC.MATERIAL (MATERIAL_ID),
+  CONSTRAINT MATERIAL_ID FOREIGN KEY (MATERIAL_ID) REFERENCES SC.MATERIAL (MATERIAL_ID)
+)
+COMMENT 'Tracks planned material quantities for future production or sales.';
