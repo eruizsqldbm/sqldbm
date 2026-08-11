@@ -1,0 +1,1 @@
+CREATE SCHEMA POS COMMENT 'Schema for our POS system.';
