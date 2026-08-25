@@ -1,0 +1,8 @@
+-- ************************************** CRM.PRICEBOOK
+CREATE TABLE CRM.PRICEBOOK (
+  PRICEBOOK_ID string NOT NULL CONSTRAINT PK_PRICEBOOK PRIMARY KEY COMMENT 'Unique identifier for each pricebook, serving as the primary key.',
+  NAME string(80) NOT NULL COMMENT 'The name of the pricebook (e.g., Standard Pricebook, Promotional Pricebook).',
+  IS_ACTIVE boolean COMMENT 'Indicates whether the pricebook is active and available for use in CRM processes.',
+  CREATED_DATE date COMMENT 'The date when the pricebook record was created.'
+)
+COMMENT 'Stores pricing catalogs, allowing organizations to maintain different product pricing structures for various customer segments or sales contexts.';
