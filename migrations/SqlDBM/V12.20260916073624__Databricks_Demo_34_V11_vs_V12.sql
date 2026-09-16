@@ -1,0 +1,1 @@
+ALTER TABLE TABLE_16_T ADD COLUMNS (mynewcolumn string NOT NULL);
