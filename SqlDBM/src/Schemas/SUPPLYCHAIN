@@ -1,0 +1,1 @@
+CREATE SCHEMA SUPPLYCHAIN COMMENT 'Supply Chain Data Model';
