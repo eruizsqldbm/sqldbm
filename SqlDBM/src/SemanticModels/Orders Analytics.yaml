@@ -1,0 +1,196 @@
+name: Orders_Analytics
+description: Semantic model for sales analytics over Orders and Customer.
+tables:
+- name: Orders
+  description: Core order transaction table.
+  base_table:
+    schema: SUPPLYCHAIN
+    table: ORDERS
+  primary_key:
+    columns:
+    - OrderId
+  dimensions:
+  - name: Status
+    synonyms:
+    - order status
+    description: Order lifecycle status.
+    expr: STATUS
+    data_type: varchar(50)
+    is_enum: true
+    sample_values:
+    - Pending
+    - Processing
+    - Shipped
+    - Delivered
+    - Cancelled
+  - name: OpenOrders
+    synonyms:
+    - open orders
+    description: Orders not delivered or cancelled.
+    expr: STATUS NOT IN ('Delivered', 'Cancelled')
+    data_type: BOOLEAN
+    labels:
+    - filter
+  time_dimensions:
+  - name: OrderDate
+    synonyms:
+    - order placed date
+    description: Date order was placed.
+    expr: ORDERDATE
+    data_type: date
+  - name: ShippedDate
+    synonyms:
+    - ship date
+    description: Date order shipped.
+    expr: SHIPPEDDATE
+    data_type: date
+  facts:
+  - name: OrderId
+    synonyms:
+    - order number
+    description: Order identifier.
+    expr: ORDERID
+    data_type: number(38,0)
+    access_modifier: public_access
+  - name: CustomerId
+    synonyms:
+    - customer number
+    description: Customer who placed order.
+    expr: CUSTOMERID
+    data_type: number(38,0)
+    access_modifier: public_access
+  - name: TotalAmount
+    synonyms:
+    - order total
+    - revenue amount
+    description: Total order value.
+    expr: TOTALAMOUNT
+    data_type: number(15,2)
+    access_modifier: public_access
+  - name: DaysToShip
+    synonyms:
+    - fulfillment days
+    description: Days from order to ship.
+    expr: DATEDIFF('day', ORDERDATE, SHIPPEDDATE)
+    data_type: NUMBER(38,0)
+    access_modifier: public_access
+  metrics:
+  - name: total_revenue
+    synonyms:
+    - total sales
+    - revenue
+    description: Sum of order totals.
+    expr: SUM(TOTALAMOUNT)
+    access_modifier: public_access
+  - name: order_count
+    synonyms:
+    - number of orders
+    description: Count of orders.
+    expr: COUNT(ORDERID)
+    access_modifier: public_access
+  - name: avg_order_value
+    synonyms:
+    - AOV
+    description: Average order total.
+    expr: AVG(TOTALAMOUNT)
+    access_modifier: public_access
+- name: Customer
+  description: Customer master data.
+  base_table:
+    schema: SUPPLYCHAIN
+    table: CUSTOMER
+  primary_key:
+    columns:
+    - CustomerId
+  unique_keys:
+  - columns:
+    - CustomerName
+  dimensions:
+  - name: CustomerName
+    synonyms:
+    - company name
+    description: Customer/company name.
+    expr: CUSTOMERNAME
+    data_type: varchar(255)
+    unique: true
+    is_enum: false
+  - name: City
+    synonyms:
+    - customer city
+    description: Customer city.
+    expr: CITY
+    data_type: varchar(100)
+    is_enum: false
+  - name: Country
+    synonyms:
+    - customer country
+    description: Customer country.
+    expr: COUNTRY
+    data_type: varchar(100)
+    is_enum: false
+  - name: CustomerType
+    synonyms:
+    - customer segment
+    description: Customer segment.
+    expr: CUSTOMERTYPE
+    data_type: varchar(100)
+    is_enum: true
+    sample_values:
+    - Retail
+    - Wholesale
+    - Enterprise
+    - Government
+  facts:
+  - name: CustomerId
+    synonyms:
+    - customer number
+    description: Customer identifier.
+    expr: CUSTOMERID
+    data_type: number(38,0)
+    access_modifier: public_access
+  - name: Email
+    synonyms:
+    - email address
+    description: Contact email.
+    expr: EMAIL
+    data_type: varchar(100)
+    access_modifier: private_access
+  metrics:
+  - name: customer_count
+    synonyms:
+    - number of customers
+    description: Distinct customer count.
+    expr: COUNT(DISTINCT CUSTOMERID)
+    access_modifier: public_access
+relationships:
+- name: FK_6
+  left_table: Orders
+  right_table: Customer
+  relationship_columns:
+  - left_column: CustomerId
+    right_column: CustomerId
+metrics:
+- name: revenue_per_customer
+  synonyms:
+  - avg revenue per customer
+  description: Revenue divided by distinct customers.
+  expr: SUM(ORDERS.TOTALAMOUNT) / NULLIF(COUNT(DISTINCT CUSTOMER.CUSTOMERID), 0)
+  access_modifier: public_access
+  using_relationships:
+  - FK_Orders_Customer
+verified_queries:
+- name: total_revenue_by_customer_type
+  question: What is total revenue by customer type?
+  sql: SELECT c.CUSTOMERTYPE, SUM(o.TOTALAMOUNT) AS TOTAL_REVENUE FROM SUPPLYCHAIN.ORDERS o JOIN SUPPLYCHAIN.CUSTOMER c ON o.CUSTOMERID = c.CUSTOMERID GROUP BY c.CUSTOMERTYPE ORDER BY TOTAL_REVENUE DESC
+  verified_at: 1789677536
+  verified_by: eric.ruiz@sqldbm.com
+  use_as_onboarding_question: true
+- name: open_orders_by_status
+  question: How many open orders are there by status?
+  sql: SELECT STATUS, COUNT(*) AS ORDER_COUNT FROM SUPPLYCHAIN.ORDERS WHERE STATUS NOT IN ('Delivered', 'Cancelled') GROUP BY STATUS ORDER BY ORDER_COUNT DESC
+  verified_at: 1789677536
+  verified_by: eric.ruiz@sqldbm.com
+  use_as_onboarding_question: true
+module_custom_instructions:
+  question_categorization: Questions about sales/revenue map to Orders total_revenue. Questions about customers/clients map to Customer.
+  sql_generation: Exclude Cancelled orders from revenue unless asked. Use OpenOrders filter for "in progress" questions. Round monetary metrics to 2 decimals.
