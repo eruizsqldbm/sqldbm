@@ -1,0 +1,2 @@
+ALTER TABLE POS.OrderItem
+ADD COLUMN testcolumn2 int NOT NULL;
