@@ -1,0 +1,1 @@
+CREATE SCHEMA sap_salesforce COMMENT 'SAP ERP and Salesforce CRM entities for the integrated Customer 360 and order-to-cash warehouse layer. Source requirements: data-model-requirements.md.';
